@@ -12,7 +12,8 @@ var context = {
     lastName: 'Doe'
 };
 
-var correlations = loadCSV('js/correlation.csv', true);
+var binaryCorrelations = loadCSV('js/binary-correlation.csv', true);
+var fullCorrelations = loadCSV('js/full-correlation.csv', true);
 var annotated = loadCSV('js/annotated.csv', false);
 var catalogue = readCatalogue();
 
@@ -50,7 +51,11 @@ function readCatalogue() {
 	return catalogue;
 }
 
+var currentSelection = 0;
+
 function showSearch(selectedId) {
+	currentSelection = selectedId;
+
 	var context = {
 		selected: catalogue[selectedId],
 		suggestions: getSuggestions(selectedId)
@@ -69,32 +74,43 @@ function suggestionClicked(card) {
 	showSearch(selectedId);
 }
 
-function _getSuggestions(selectedId) {
-	var suggestions = correlations[selectedId].map(function(correlation, id) {
-		return { correlation: correlation, id: id };
-	}).sort(function(lhs, rhs) {
-		return (lhs.correlation < rhs.correlation) ? 1 : ((lhs.correlation == rhs.correlation) ? 0 : -1);
-	}).slice(1, 5).map(function(entry) {
+function getSuggestions(selectedId) {
+	var scored = annotated.map(function(entry, id) {
+		var score = totalScore(selectedId, id);
+		return { id: id, score: score };
+	}).sort(function(lhs, rhs) {		
+		return (lhs.score < rhs.score) ? 1 : ((lhs.score == rhs.score) ? 0 : -1);
+	})
+
+	var suggestions = scored.slice(1, 5).map(function(entry) {
 		return catalogue[entry.id];
 	});
 	return suggestions;
 }
 
-function getSuggestions(selectedId) {
-	var selected = annotated[selectedId];
-
-	var suggestions = annotated.map(function(entry, id) {
-		var score = 0;
-		for (var i=0; i <= 4; i++) {
-			score += Math.pow(10 - Math.abs(selected[i] - entry[i]), 2);
+function totalScore(selectedId, candidateId) {
+	var score = 0
+	if ($$('#full-correlation')[0].checked) {
+		score += correlationScore(fullCorrelations, selectedId, candidateId);
+	}
+	if ($$('#binary-correlation')[0].checked) {
+		score += correlationScore(binaryCorrelations, selectedId, candidateId);
+	}
+	for (var i=0; i < 5; i++) {
+		if ($$('#manual' + i)[0].checked) {
+			score += manualScore(i, selectedId, candidateId);
 		}
-		return { id: id, score: score };
-	}).sort(function(lhs, rhs) {		
-		return (lhs.score < rhs.score) ? 1 : ((lhs.score == rhs.score) ? 0 : -1);
-	}).slice(1, 5).map(function(entry) {
-		return catalogue[entry.id];
-	});
-	return suggestions;
+	}
+	return score;
+}
+
+function correlationScore(correlations, selectedId, candidateId) {
+	return Math.pow(correlations[selectedId][candidateId] * 10, 2);
+}
+
+function manualScore(columnId, selectedId, candidateId) {
+	var diff = annotated[selectedId][columnId] - annotated[candidateId][columnId];
+	return Math.pow(10 - Math.abs(diff), 2);
 }
 
 function loadCSV(url, skipLine) {
@@ -111,3 +127,7 @@ function loadCSV(url, skipLine) {
 
 	return table;
 }
+
+$$('.panel-left').on('panel:close', function () {
+    showSearch(currentSelection);
+});
