@@ -7,13 +7,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <!-- Your app title -->
-    <title>My App</title>
+    <title>Boot Browser</title>
     <!-- Path to Framework7 iOS CSS theme styles-->
-    <link rel="stylesheet" href="path/to/framework7.ios.min.css">
+    <link rel="stylesheet" href="css/framework7.ios.min.css">
     <!-- Path to Framework7 iOS related color styles -->
-    <link rel="stylesheet" href="path/to/framework7.ios.colors.min.css">
+    <link rel="stylesheet" href="css/framework7.ios.colors.min.css">
     <!-- Path to your custom app styles-->
-    <link rel="stylesheet" href="path/to/my-app.css">
+    <link rel="stylesheet" href="css/bootbrowser.css">
   </head>
   <body>
     <!-- Status bar overlay for full screen mode (PhoneGap) -->
@@ -50,9 +50,7 @@
           <div data-page="index" class="page">
             <!-- Scrollable page content -->
             <div class="page-content">
-              <p>Page content goes here</p>
-              <!-- Link to another page -->
-              <a href="about.html">About app</a>
+              {% include search.html %}
             </div>
           </div>
         </div>
@@ -67,8 +65,8 @@
       </div>
     </div>
     <!-- Path to Framework7 Library JS-->
-    <script type="text/javascript" src="path/to/framework7.min.js"></script>
+    <script type="text/javascript" src="js/framework7.min.js"></script>
     <!-- Path to your app js-->
-    <script type="text/javascript" src="path/to/my-app.js"></script>
+    <script type="text/javascript" src="js/bootbrowser.js"></script>
   </body>
 </html>             
