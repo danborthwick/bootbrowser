@@ -5,26 +5,30 @@
 		  <div class="card-header">This is a Boot</div>
 		  <div class="card-content">
 		    <div class="card-content-inner" align="center">
-		    	<img src="images/Shoe/http-_2F_2Fstatic.theiconic.com.au_2Fp_2Flipstik-9248-621344-1.jpg" width="60%">
+		    	<img src="{{selected.image}}" width="60%">
 		    </div>
 		  </div>
 		  <div class="card-footer">Brown - High Heel - Casual</div>
 		</div>
 
-		{{#each this}}
+		{{#each suggestions}}
+		{{#if newRow}}
 		<div class="row">
+		{{/if}}
 			<div class="col-50">
 				<div class="card">
 				  <div class="card-content">
 				    <div class="card-content-inner" align="center">
-				    	<img src="images/shoe%202/http-_2F_2Fstatic.theiconic.com.au_2Fp_2Firo-9282-952115-1.jpg" width="60%">
+				    	<img src="{{image}}" width="60%">
 				    </div>
 				  </div>
 				</div>
 			</div>
+		{{#unless newRow}}
 		</div>
+		{{/unless}}
 		{{/each}}
-		
+
 	</div>
 </div>
 {% endraw %}
