@@ -12,6 +12,8 @@ var context = {
     lastName: 'Doe'
 };
 
+var catalogue = readCatalogue();
+
 // Add view
 var mainView = myApp.addView('.view-main', {
   // Because we want to use dynamic navbar, we need to enable it for this view:
@@ -21,16 +23,42 @@ var mainView = myApp.addView('.view-main', {
 myApp.onPageInit('search', function (page) {
 });
 
-var html = compiledSearchTemplate({
-		selected: { id: 1, image: 'images/Shoe/http-_2F_2Fstatic.theiconic.com.au_2Fp_2Flipstik-9248-621344-1.jpg' },
+function readCatalogue() {
+	var catalogue = {};
 
-		suggestions: [
-			{ newRow: true,
-				id: 2, image: 'images/shoe%202/http-_2F_2Fstatic.theiconic.com.au_2Fp_2Firo-9282-952115-1.jpg' },
-			{ id: 3, image: 'images/shoe%203/http-_2F_2Fstatic.theiconic.com.au_2Fp_2Fskin-0979-311184-1.jpg' },
-			{ newRow: true,
-				id: 4, image: 'images/shoe%204/http-_2F_2Fstatic.theiconic.com.au_2Fp_2Fcoconuts-by-matisse-1058-546784-1.jpg' },
-			{ id: 5, image: 'images/shoe%205/http-_2F_2Fstatic.theiconic.com.au_2Fp_2Fsol-sana-9277-333544-1.jpg' },
-		]
+	$$.getJSON("js/images.json", function (images) {
+		var pattern = /shoe (\d+)\/(.+\.jpg)/i;
+		images.forEach(function(image) {
+			var matches = image.match(pattern);
+			var id = matches[1];
+			var path = matches[0];
+
+			var entry = catalogue[id] || { id: id, images: [] };
+			entry.images.push(path);
+			entry.mainImage = path;
+			catalogue[id] = entry;
+		});
+		showSearch(0);
 	});
-mainView.router.loadContent(html);
+
+	return catalogue;
+}
+
+function showSearch(selectedId) {
+	var context = {
+		selected: catalogue[selectedId],
+
+		suggestions: [ 
+			catalogue[1],
+			catalogue[2],
+			catalogue[3],
+			catalogue[4],
+		]
+	};
+
+	for (var i=0; i < context.suggestions.length; i++) {
+		context.suggestions[i].newRow = (i % 2) == 0
+	}
+	var html = compiledSearchTemplate(context);
+	mainView.router.loadContent(html);
+}
