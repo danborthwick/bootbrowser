@@ -12,22 +12,13 @@ var context = {
     lastName: 'Doe'
 };
 
-var correlations = readCorrelations();
+var correlations = loadCSV('js/correlation.csv', true);
+var annotated = loadCSV('js/annotated.csv', false);
 var catalogue = readCatalogue();
 
-var initSteps = 0;
-function initStep() {
-	// initSteps++;
-	// if (initSteps == 2) {
-	// 	setTimeout(10, function() {
-	// 		showSearch(0);
-	// 	});
-	// }
-}
-
-		setTimeout(function() {
-			showSearch(0);
-		}, 1000);
+setTimeout(function() {
+	showSearch(0);
+}, 1000);
 
 // Add view
 var mainView = myApp.addView('.view-main', {
@@ -56,8 +47,6 @@ function readCatalogue() {
 		});
 	});
 
-	initStep();
-
 	return catalogue;
 }
 
@@ -80,23 +69,7 @@ function suggestionClicked(card) {
 	showSearch(selectedId);
 }
 
-function readCorrelations() {
-	var correlations = [];
-
-	$$.get('js/correlation.csv', {}, function(data) {
-		var lines = data.split(/\r\n|\n/);
-		for (var lineId = 1; lineId < lines.length; lineId++) {
-			var entries = lines[lineId].split(',').slice(1);	
-			correlations.push(entries);
-		}
-	});
-
-	initStep();
-
-	return correlations;
-}
-
-function getSuggestions(selectedId) {
+function _getSuggestions(selectedId) {
 	var suggestions = correlations[selectedId].map(function(correlation, id) {
 		return { correlation: correlation, id: id };
 	}).sort(function(lhs, rhs) {
@@ -105,4 +78,34 @@ function getSuggestions(selectedId) {
 		return catalogue[entry.id];
 	});
 	return suggestions;
+}
+
+function getSuggestions(selectedId) {
+	var suggestions = annotated.map(function(entry, id) {
+		var score = 0;
+		for (var i=0; i <= 4; i++) {
+			score += entry[i];
+		}
+		return { id: id, score: score };
+	}).sort(function(lhs, rhs) {		
+		return (lhs.score < rhs.score) ? 1 : ((lhs.score == rhs.score) ? 0 : -1);
+	}).slice(1, 5).map(function(entry) {
+		return catalogue[entry.id];
+	});
+	return suggestions;
+}
+
+function loadCSV(url, skipLine) {
+	var table = [];
+	var firstLine = skipLine ? 1 : 0;
+
+	$$.get(url, {}, function(data) {
+		var lines = data.split(/\r\n|\n/);
+		for (var lineId = firstLine; lineId < lines.length; lineId++) {
+			var entries = lines[lineId].split(',').slice(1).map(function(s) { return Number(s); });	
+			table.push(entries);
+		}
+	});
+
+	return table;
 }
