@@ -81,10 +81,12 @@ function _getSuggestions(selectedId) {
 }
 
 function getSuggestions(selectedId) {
+	var selected = annotated[selectedId];
+
 	var suggestions = annotated.map(function(entry, id) {
 		var score = 0;
 		for (var i=0; i <= 4; i++) {
-			score += entry[i];
+			score += Math.pow(10 - Math.abs(selected[i] - entry[i]), 2);
 		}
 		return { id: id, score: score };
 	}).sort(function(lhs, rhs) {		
