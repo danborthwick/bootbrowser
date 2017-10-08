@@ -49,10 +49,10 @@ function showSearch(selectedId) {
 		selected: catalogue[selectedId],
 
 		suggestions: [ 
-			catalogue[1],
-			catalogue[2],
-			catalogue[3],
-			catalogue[4],
+			catalogue[(selectedId + 1) % 50],
+			catalogue[(selectedId + 2) % 50],
+			catalogue[(selectedId + 3) % 50],
+			catalogue[(selectedId + 4) % 50],
 		]
 	};
 
@@ -62,3 +62,11 @@ function showSearch(selectedId) {
 	var html = compiledSearchTemplate(context);
 	mainView.router.loadContent(html);
 }
+
+function suggestionClicked(card) {
+	var selectedId = $$(card).attr('data-id');
+	console.log("Clicked: " + selectedId);
+	showSearch(selectedId);
+}
+
+

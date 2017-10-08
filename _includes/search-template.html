@@ -16,13 +16,15 @@
 		<div class="row">
 		{{/if}}
 			<div class="col-50">
-				<div class="card">
-				  <div class="card-content">
-				    <div class="card-content-inner" align="center">
-				    	<img src="images/{{images[0]}}" width="60%">
-				    </div>
-				  </div>
-				</div>
+				<a onclick="suggestionClicked(this); return false;" data-id="{{id}}">
+					<div class="card">
+					  <div class="card-content">
+					    <div class="card-content-inner" align="center">
+					    	<img src="images/{{images[0]}}" width="60%">
+					    </div>
+					  </div>
+					</div>
+				</a>
 			</div>
 		{{#unless newRow}}
 		</div>
