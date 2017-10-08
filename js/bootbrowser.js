@@ -12,7 +12,22 @@ var context = {
     lastName: 'Doe'
 };
 
+var correlations = readCorrelations();
 var catalogue = readCatalogue();
+
+var initSteps = 0;
+function initStep() {
+	// initSteps++;
+	// if (initSteps == 2) {
+	// 	setTimeout(10, function() {
+	// 		showSearch(0);
+	// 	});
+	// }
+}
+
+		setTimeout(function() {
+			showSearch(0);
+		}, 1000);
 
 // Add view
 var mainView = myApp.addView('.view-main', {
@@ -21,6 +36,7 @@ var mainView = myApp.addView('.view-main', {
 });
 
 myApp.onPageInit('search', function (page) {
+	console.log('Seatch init');
 });
 
 function readCatalogue() {
@@ -38,8 +54,9 @@ function readCatalogue() {
 			entry.mainImage = path;
 			catalogue[id] = entry;
 		});
-		showSearch(0);
 	});
+
+	initStep();
 
 	return catalogue;
 }
@@ -47,13 +64,7 @@ function readCatalogue() {
 function showSearch(selectedId) {
 	var context = {
 		selected: catalogue[selectedId],
-
-		suggestions: [ 
-			catalogue[(selectedId + 1) % 50],
-			catalogue[(selectedId + 2) % 50],
-			catalogue[(selectedId + 3) % 50],
-			catalogue[(selectedId + 4) % 50],
-		]
+		suggestions: getSuggestions(selectedId)
 	};
 
 	for (var i=0; i < context.suggestions.length; i++) {
@@ -69,4 +80,29 @@ function suggestionClicked(card) {
 	showSearch(selectedId);
 }
 
+function readCorrelations() {
+	var correlations = [];
 
+	$$.get('js/correlation.csv', {}, function(data) {
+		var lines = data.split(/\r\n|\n/);
+		for (var lineId = 1; lineId < lines.length; lineId++) {
+			var entries = lines[lineId].split(',').slice(1);	
+			correlations.push(entries);
+		}
+	});
+
+	initStep();
+
+	return correlations;
+}
+
+function getSuggestions(selectedId) {
+	var suggestions = correlations[selectedId].map(function(correlation, id) {
+		return { correlation: correlation, id: id };
+	}).sort(function(lhs, rhs) {
+		return (lhs.correlation < rhs.correlation) ? 1 : ((lhs.correlation == rhs.correlation) ? 0 : -1);
+	}).slice(1, 5).map(function(entry) {
+		return catalogue[entry.id];
+	});
+	return suggestions;
+}
